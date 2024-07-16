@@ -1,0 +1,16 @@
+* {
+  margin: 0;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+:root {
+  color-scheme: light dark;
+}
+body {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  @media screen and (prefers-color-scheme: dark) {
+    background-color: #181818;
+  }
+}
