@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 * {
   margin: 0;
   font-family: inherit;
@@ -7,10 +8,32 @@
   color-scheme: light dark;
 }
 body {
+  font-family: "Lato", "Inter", "Ubuntu", system-ui, sans-serif;
   min-height: 100dvh;
   display: grid;
   place-content: center;
+  gap: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   @media screen and (prefers-color-scheme: dark) {
     background-color: #181818;
+  }
+}
+canvas {
+  display: block;
+}
+.controls {
+  display: flex;
+  place-items: center;
+  place-content: center;
+  gap: 0.5rem;
+  label {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input[type="button"] {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
   }
 }

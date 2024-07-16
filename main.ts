@@ -1,9 +1,11 @@
-// Config
 const BOARD = {
+  debug: false,
   width: 800,
-  height: 800,
+  height: 600,
   cellSize: 24,
+  fps: 10,
   // these are calculated later:
+  frameInterval: 0,
   rows: 0,
   cols: 0,
   xOffset: 0,
@@ -26,7 +28,6 @@ const COLORS = {
   },
 };
 
-// Logic
 const app = document.getElementById("app") as HTMLCanvasElement;
 if (!app) {
   throw new Error("Could not find canvas");
@@ -43,7 +44,9 @@ BOARD.cols = Math.floor(BOARD.width / BOARD.cellSize);
 BOARD.xOffset = (BOARD.width % BOARD.cellSize) / 2;
 BOARD.yOffset = (BOARD.height % BOARD.cellSize) / 2;
 
-const createWorld = (): Array<Array<State>> => {
+type World = Array<Array<State>>;
+
+const createWorld = (): World => {
   const newWorld = [];
   for (let i = 0; i < BOARD.rows; ++i) {
     newWorld.push(new Array(BOARD.cols).fill(State.Dead));
@@ -51,10 +54,14 @@ const createWorld = (): Array<Array<State>> => {
   return newWorld;
 };
 
-const world = createWorld();
-const nextWorld = createWorld();
+const deepCopy = (state: World): World => {
+  return JSON.parse(JSON.stringify(state));
+};
 
-const render = () => {
+let world = createWorld();
+let nextWorld = createWorld();
+
+const renderWorld = () => {
   for (let row = 0; row < BOARD.rows; ++row) {
     for (let col = 0; col < BOARD.cols; ++col) {
       const cell = {
@@ -70,16 +77,57 @@ const render = () => {
     }
   }
 };
-render();
+renderWorld();
 
-const setState = (row: number, col: number, newState: State) => {
-  world[row][col] = newState;
+const countNeighbors = (row: number, col: number): number => {
+  let neighbors = 0;
+  for (let rowOffset = -1; rowOffset <= 1; ++rowOffset) {
+    if (row + rowOffset > -1 && row + rowOffset < BOARD.rows) {
+      for (let colOffset = -1; colOffset <= 1; ++colOffset) {
+        if (col + colOffset > -1 && col + colOffset < BOARD.cols) {
+          if (rowOffset === 0 && colOffset === 0) {
+            continue;
+          }
+          if (world[row + rowOffset][col + colOffset] === State.Alive) {
+            ++neighbors;
+          }
+        }
+      }
+    }
+  }
+  return neighbors;
 };
 
 const computeNextWorld = () => {
   for (let row = 0; row < BOARD.rows; ++row) {
     for (let col = 0; col < BOARD.cols; ++col) {
-      world;
+      const neighbors = countNeighbors(row, col);
+      const cell = world[row][col];
+      nextWorld[row][col] = ((cell: State) => {
+        switch (cell) {
+          case State.Alive:
+            return neighbors === 2 || neighbors === 3 ? State.Alive : State.Dead;
+          case State.Dead:
+            return neighbors === 3 ? State.Alive : State.Dead;
+        }
+      })(cell);
+    }
+  }
+};
+
+const iterateNext = () => {
+  listActive();
+  computeNextWorld();
+  world = deepCopy(nextWorld);
+  renderWorld();
+};
+
+const listActive = () => {
+  for (let row = 0; row < BOARD.rows; ++row) {
+    for (let col = 0; col < BOARD.cols; ++col) {
+      if (nextWorld[row][col] === State.Alive) {
+        console.log(`x: ${col}, y: ${row}`);
+      }
     }
   }
 };
@@ -87,17 +135,42 @@ const computeNextWorld = () => {
 app.addEventListener("mousedown", (e) => {
   const row = Math.floor((e.offsetY - BOARD.yOffset) / BOARD.cellSize);
   const col = Math.floor((e.offsetX - BOARD.xOffset) / BOARD.cellSize);
+  const alive = world[row][col] === State.Alive;
   if (row >= 0 && col >= 0 && row < BOARD.rows && col < BOARD.cols) {
-    switch (world[row][col]) {
-      case State.Alive: {
-        setState(row, col, State.Dead);
-        break;
-      }
-      default: {
-        setState(row, col, State.Alive);
-        break;
-      }
+    if (BOARD.debug) {
+      console.log(`Row: ${row}\nCol: ${col}\nAlive: ${!alive}\nNeighbors: ${countNeighbors(row, col)}`);
     }
+    world[row][col] = alive ? State.Dead : State.Alive;
   }
-  render();
+  renderWorld();
+});
+
+const nextBtn = document.getElementById("next");
+nextBtn?.addEventListener("click", () => iterateNext());
+
+BOARD.frameInterval = 1000 / BOARD.fps;
+
+let lastFrameTime = performance.now();
+let running = false;
+const animate = (currentTime: number) => {
+  const elapsedTime = currentTime - lastFrameTime;
+  if (elapsedTime >= BOARD.frameInterval) {
+    lastFrameTime = performance.now();
+    iterateNext();
+  }
+  if (running) {
+    requestAnimationFrame(animate);
+  }
+};
+
+const playBtn = document.getElementById("play");
+playBtn?.addEventListener("click", () => {
+  if (!running) {
+    playBtn.setAttribute("value", "Stop");
+    running = true;
+    requestAnimationFrame(animate);
+  } else {
+    playBtn.setAttribute("value", "Play");
+    running = false;
+  }
 });
