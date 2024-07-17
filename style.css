@@ -1,11 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   box-sizing: border-box;
 }
 :root {
   color-scheme: light dark;
+  /* Colors */
+  --pastel-red: #ffabab;
+  --pastel-red-2: #ffcbc1;
+  --pastel-green: #bffcc6;
+  --pastel-green-2: #dbffd6;
+  --pastel-blue: #6eb5ff;
+  --pastel-blue-2: #afcbff;
+  --pastel-yellow: #fff5ba;
+  --pastel-yellow-2: #ffffd1;
+  --pastel-aqua: #85e3ff;
+  --pastel-aqua-2: #ace7ff;
+  --pastel-violet: #a79aff;
+  --pastel-violet-2: #b5b9ff;
+  --pastel-purple: #b28dff;
+  --pastel-purple-2: #c5a3ff;
+  --pastel-pink: #f6a6ff;
+  --pastel-pink-2: #fcc2ff;
 }
 body {
   font-family: "Lato", "Inter", "Ubuntu", system-ui, sans-serif;
@@ -47,11 +66,36 @@ canvas {
 }
 input {
   font-family: inherit;
-  cursor: pointer;
+  appearance: none;
   background-color: #333;
   border: 1px solid #ccc;
   &:active {
     background-color: #444;
+  }
+  &[type="checkbox"],
+  &[type="button"] {
+    cursor: pointer;
+  }
+  &[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: baseline;
+    position: relative;
+    &:checked {
+      background-color: var(--pastel-blue-2);
+      &::after {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 1rem;
+        height: 1rem;
+        content: url(node_modules/@gitlab/svgs/dist/sprite_icons/check.svg);
+      }
+      &:active {
+        background-color: var(--pastel-blue);
+      }
+    }
   }
   &:disabled {
     cursor: default;
@@ -69,18 +113,28 @@ aside {
     background-color: #111;
     border-color: #222;
   }
+  & > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
   .head {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
   }
   label {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    min-height: 1.5rem;
   }
   input {
     height: 1.5rem;
     max-width: 80px;
   }
+}
+.config {
   fieldset {
     border: 1px solid #ccc;
     @media screen and (prefers-color-scheme: dark) {
@@ -90,7 +144,25 @@ aside {
 }
 .message {
   font-size: 0.75rem;
-  background-color: #fff5ba;
-  color: black;
   margin-block: 0.5rem;
+  background-color: #aaa;
+  color: black;
+  &.red {
+    background-color: var(--pastel-red);
+  }
+  &.green {
+    background-color: var(--pastel-green);
+  }
+  &.blue {
+    background-color: var(--pastel-blue);
+  }
+  &.yellow {
+    background-color: var(--pastel-yellow);
+  }
+  &.aqua {
+    background-color: var(--pastel-aqua);
+  }
+  &.violet {
+    background-color: var(--pastel-violet);
+  }
 }

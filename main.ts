@@ -2,7 +2,7 @@ const BOARD = {
   debug: false,
   width: 800,
   height: 600,
-  cellSize: 16,
+  cellSize: 12,
   fps: 10,
   grid: true,
   // these are calculated later:
