@@ -24,8 +24,8 @@ const COLORS = {
     grid: "#292929",
   },
   [State.Alive]: {
-    fill: "#666666",
-    grid: "#5B5B5B",
+    fill: "#afcbff",
+    grid: "#acb9f0",
   },
 };
 
@@ -59,8 +59,7 @@ const deepCopy = (state: World): World => {
   return JSON.parse(JSON.stringify(state));
 };
 
-let world = createWorld();
-let nextWorld = createWorld();
+let world: World, nextWorld: World;
 
 const renderWorld = () => {
   for (let row = 0; row < BOARD.rows; ++row) {
@@ -80,7 +79,13 @@ const renderWorld = () => {
     }
   }
 };
-renderWorld();
+
+const init = () => {
+  world = createWorld();
+  nextWorld = createWorld();
+  renderWorld();
+};
+init();
 
 const countNeighbors = (row: number, col: number): number => {
   let neighbors = 0;
@@ -119,20 +124,9 @@ const computeNextWorld = () => {
 };
 
 const iterateNext = () => {
-  listActive();
   computeNextWorld();
   world = deepCopy(nextWorld);
   renderWorld();
-};
-
-const listActive = () => {
-  for (let row = 0; row < BOARD.rows; ++row) {
-    for (let col = 0; col < BOARD.cols; ++col) {
-      if (nextWorld[row][col] === State.Alive) {
-        console.log(`x: ${col}, y: ${row}`);
-      }
-    }
-  }
 };
 
 app.addEventListener("mousedown", (e) => {
@@ -149,7 +143,7 @@ app.addEventListener("mousedown", (e) => {
 });
 
 const nextBtn = document.getElementById("next");
-nextBtn?.addEventListener("click", () => iterateNext());
+nextBtn?.addEventListener("click", iterateNext);
 
 BOARD.frameInterval = 1000 / BOARD.fps;
 
@@ -166,20 +160,26 @@ const animate = (currentTime: number) => {
   }
 };
 
-const playBtn = document.getElementById("play");
-playBtn?.addEventListener("click", () => {
-  if (!running) {
-    playBtn.setAttribute("value", "Stop");
-    if (nextBtn) {
-      nextBtn.setAttribute("disabled", "");
-    }
-    running = true;
+const playPause = () => {
+  running = !running;
+  playBtn?.setAttribute("value", running ? "Stop" : "Play");
+  if (running) {
+    nextBtn?.setAttribute("disabled", "");
     requestAnimationFrame(animate);
   } else {
-    playBtn.setAttribute("value", "Play");
-    if (nextBtn) {
-      nextBtn.removeAttribute("disabled");
-    }
-    running = false;
+    nextBtn?.removeAttribute("disabled");
   }
+};
+
+const playBtn = document.getElementById("play");
+playBtn?.addEventListener("click", () => {
+  playPause();
+});
+
+const clearBtn = document.getElementById("clear");
+clearBtn?.addEventListener("click", () => {
+  if (running) {
+    playPause();
+  }
+  init();
 });

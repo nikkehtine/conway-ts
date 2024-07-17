@@ -11,14 +11,54 @@
     <main>
       <canvas id="app"></canvas>
       <div class="controls">
-        <input type="checkbox" id="debug" />
-        <label for="debug">Debug</label>
         <input type="button" id="next" value="Next" />
         <input type="button" id="play" value="Play" />
+        <input type="button" id="clear" value="Clear" />
       </div>
     </main>
     <aside>
       <p class="head">Configure</p>
+      <p class="message">Those are dummy elements that don't do anything for now</p>
+      <!------------------------------------------->
+      <label>
+        Debug:
+        <input type="checkbox" id="debug" />
+      </label>
+      <label>
+        FPS:
+        <input type="number" id="fps" value="10" min="1" max="100" />
+      </label>
+      <label>
+        Cell size:
+        <input type="number" id="cellSize" value="16" min="2" max="100" />
+      </label>
+      <label>
+        Teleporting edges:
+        <input type="checkbox" id="teleportingEdges" />
+      </label>
+      <fieldset>
+        <legend>Color options</legend>
+        <label>
+          Cells:
+          <input type="color" id="liveCellColor" value="#afcbff" />
+        </label>
+        <label>
+          Cell outline:
+          <input type="color" id="liveGridColor" value="#acb9f0" />
+        </label>
+        <label>
+          Background:
+          <input type="color" id="deadCellColor" value="#202020" />
+        </label>
+        <label>
+          Background grid:
+          <input type="color" id="deadGridColor" value="#292929" />
+        </label>
+        <label>
+          Show grid:
+          <input type="checkbox" id="showGrid" checked />
+        </label>
+      </fieldset>
     </aside>
   </body>
 </html>
