@@ -2,8 +2,9 @@ const BOARD = {
   debug: false,
   width: 800,
   height: 600,
-  cellSize: 24,
+  cellSize: 16,
   fps: 10,
+  grid: true,
   // these are calculated later:
   frameInterval: 0,
   rows: 0,
@@ -23,8 +24,8 @@ const COLORS = {
     grid: "#292929",
   },
   [State.Alive]: {
-    fill: "#666",
-    grid: "#555",
+    fill: "#666666",
+    grid: "#5B5B5B",
   },
 };
 
@@ -71,9 +72,11 @@ const renderWorld = () => {
         state: world[row][col],
       };
       ctx.fillStyle = COLORS[cell.state].fill;
-      ctx.strokeStyle = COLORS[cell.state].grid;
       ctx.fillRect(cell.x, cell.y, cell.size, cell.size);
-      ctx.strokeRect(cell.x, cell.y, cell.size, cell.size);
+      if (BOARD.grid) {
+        ctx.strokeStyle = COLORS[cell.state].grid;
+        ctx.strokeRect(cell.x, cell.y, cell.size, cell.size);
+      }
     }
   }
 };
@@ -103,14 +106,14 @@ const computeNextWorld = () => {
     for (let col = 0; col < BOARD.cols; ++col) {
       const neighbors = countNeighbors(row, col);
       const cell = world[row][col];
-      nextWorld[row][col] = ((cell: State) => {
+      nextWorld[row][col] = (() => {
         switch (cell) {
           case State.Alive:
             return neighbors === 2 || neighbors === 3 ? State.Alive : State.Dead;
           case State.Dead:
             return neighbors === 3 ? State.Alive : State.Dead;
         }
-      })(cell);
+      })();
     }
   }
 };
@@ -155,8 +158,8 @@ let running = false;
 const animate = (currentTime: number) => {
   const elapsedTime = currentTime - lastFrameTime;
   if (elapsedTime >= BOARD.frameInterval) {
-    lastFrameTime = performance.now();
     iterateNext();
+    lastFrameTime = performance.now();
   }
   if (running) {
     requestAnimationFrame(animate);
@@ -167,10 +170,16 @@ const playBtn = document.getElementById("play");
 playBtn?.addEventListener("click", () => {
   if (!running) {
     playBtn.setAttribute("value", "Stop");
+    if (nextBtn) {
+      nextBtn.setAttribute("disabled", "");
+    }
     running = true;
     requestAnimationFrame(animate);
   } else {
     playBtn.setAttribute("value", "Play");
+    if (nextBtn) {
+      nextBtn.removeAttribute("disabled");
+    }
     running = false;
   }
 });
