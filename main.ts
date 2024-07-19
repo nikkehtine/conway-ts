@@ -183,3 +183,49 @@ clearBtn?.addEventListener("click", () => {
   }
   init();
 });
+
+type ControlElement = {
+  type: HTMLInputElement["type"];
+  label: string;
+  id: string;
+  onChange: () => void;
+  value?: string;
+  min?: number;
+  max?: number;
+  checked?: boolean;
+  fieldset?: string;
+};
+
+const controlFields: ControlElement[] = [
+  {
+    type: "checkbox",
+    label: "Debug",
+    id: "debugSwitch",
+    onChange: () => console.log("Change!"),
+  },
+];
+
+const renderConfigBox = () => {
+  const configBox = document.getElementById("config");
+  if (!configBox) {
+    throw new Error("Failed to get the config box");
+  }
+  for (let i = 0; i < controlFields.length; ++i) {
+    const field = controlFields[i];
+    const prop = document.createElement("label");
+    prop.textContent = `${field.label} :`;
+
+    const input = document.createElement("input");
+    input.type = field.type;
+    input.id = field.id;
+    input.addEventListener("change", field.onChange);
+
+    prop.appendChild(input);
+    configBox.appendChild(prop);
+    const elm = document.getElementById(field.id);
+    if (!elm) {
+      throw new Error("Couldn't append element");
+    }
+  }
+};
+renderConfigBox();
