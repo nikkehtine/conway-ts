@@ -1,4 +1,4 @@
-const BOARD = {
+const APP = {
   debug: false,
   width: 800,
   height: 600,
@@ -29,28 +29,28 @@ const COLORS = {
   },
 };
 
-const app = document.getElementById("app") as HTMLCanvasElement;
-if (!app) {
+const root = document.getElementById("root") as HTMLCanvasElement;
+if (!root) {
   throw new Error("Could not find canvas");
 }
-app.width = BOARD.width;
-app.height = BOARD.height;
+root.width = APP.width;
+root.height = APP.height;
 
-const ctx = app.getContext("2d");
+const ctx = root.getContext("2d");
 if (!ctx) {
   throw new Error("Could not initialize 2D context");
 }
-BOARD.rows = Math.floor(BOARD.height / BOARD.cellSize);
-BOARD.cols = Math.floor(BOARD.width / BOARD.cellSize);
-BOARD.xOffset = (BOARD.width % BOARD.cellSize) / 2;
-BOARD.yOffset = (BOARD.height % BOARD.cellSize) / 2;
+APP.rows = Math.floor(APP.height / APP.cellSize);
+APP.cols = Math.floor(APP.width / APP.cellSize);
+APP.xOffset = (APP.width % APP.cellSize) / 2;
+APP.yOffset = (APP.height % APP.cellSize) / 2;
 
 type World = Array<Array<State>>;
 
 const createWorld = (): World => {
   const newWorld = [];
-  for (let i = 0; i < BOARD.rows; ++i) {
-    newWorld.push(new Array(BOARD.cols).fill(State.Dead));
+  for (let i = 0; i < APP.rows; ++i) {
+    newWorld.push(new Array(APP.cols).fill(State.Dead));
   }
   return newWorld;
 };
@@ -62,17 +62,17 @@ const deepCopy = (state: World): World => {
 let world: World, nextWorld: World;
 
 const renderWorld = () => {
-  for (let row = 0; row < BOARD.rows; ++row) {
-    for (let col = 0; col < BOARD.cols; ++col) {
+  for (let row = 0; row < APP.rows; ++row) {
+    for (let col = 0; col < APP.cols; ++col) {
       const cell = {
-        x: col * BOARD.cellSize + BOARD.xOffset,
-        y: row * BOARD.cellSize + BOARD.yOffset,
-        size: BOARD.cellSize,
+        x: col * APP.cellSize + APP.xOffset,
+        y: row * APP.cellSize + APP.yOffset,
+        size: APP.cellSize,
         state: world[row][col],
       };
       ctx.fillStyle = COLORS[cell.state].fill;
       ctx.fillRect(cell.x, cell.y, cell.size, cell.size);
-      if (BOARD.grid) {
+      if (APP.grid) {
         ctx.strokeStyle = COLORS[cell.state].grid;
         ctx.strokeRect(cell.x, cell.y, cell.size, cell.size);
       }
@@ -90,9 +90,9 @@ init();
 const countNeighbors = (row: number, col: number): number => {
   let neighbors = 0;
   for (let rowOffset = -1; rowOffset <= 1; ++rowOffset) {
-    if (row + rowOffset > -1 && row + rowOffset < BOARD.rows) {
+    if (row + rowOffset > -1 && row + rowOffset < APP.rows) {
       for (let colOffset = -1; colOffset <= 1; ++colOffset) {
-        if (col + colOffset > -1 && col + colOffset < BOARD.cols) {
+        if (col + colOffset > -1 && col + colOffset < APP.cols) {
           if (rowOffset === 0 && colOffset === 0) {
             continue;
           }
@@ -107,8 +107,8 @@ const countNeighbors = (row: number, col: number): number => {
 };
 
 const computeNextWorld = () => {
-  for (let row = 0; row < BOARD.rows; ++row) {
-    for (let col = 0; col < BOARD.cols; ++col) {
+  for (let row = 0; row < APP.rows; ++row) {
+    for (let col = 0; col < APP.cols; ++col) {
       const neighbors = countNeighbors(row, col);
       const cell = world[row][col];
       nextWorld[row][col] = (() => {
@@ -129,12 +129,12 @@ const iterateNext = () => {
   renderWorld();
 };
 
-app.addEventListener("mousedown", (e) => {
-  const row = Math.floor((e.offsetY - BOARD.yOffset) / BOARD.cellSize);
-  const col = Math.floor((e.offsetX - BOARD.xOffset) / BOARD.cellSize);
+root.addEventListener("mousedown", (e) => {
+  const row = Math.floor((e.offsetY - APP.yOffset) / APP.cellSize);
+  const col = Math.floor((e.offsetX - APP.xOffset) / APP.cellSize);
   const alive = world[row][col] === State.Alive;
-  if (row >= 0 && col >= 0 && row < BOARD.rows && col < BOARD.cols) {
-    if (BOARD.debug) {
+  if (row >= 0 && col >= 0 && row < APP.rows && col < APP.cols) {
+    if (APP.debug) {
       console.log(`Row: ${row}\nCol: ${col}\nAlive: ${!alive}\nNeighbors: ${countNeighbors(row, col)}`);
     }
     world[row][col] = alive ? State.Dead : State.Alive;
@@ -145,13 +145,13 @@ app.addEventListener("mousedown", (e) => {
 const nextBtn = document.getElementById("next");
 nextBtn?.addEventListener("click", iterateNext);
 
-BOARD.frameInterval = 1000 / BOARD.fps;
+APP.frameInterval = 1000 / APP.fps;
 
 let lastFrameTime = performance.now();
 let running = false;
 const animate = (currentTime: number) => {
   const elapsedTime = currentTime - lastFrameTime;
-  if (elapsedTime >= BOARD.frameInterval) {
+  if (elapsedTime >= APP.frameInterval) {
     iterateNext();
     lastFrameTime = performance.now();
   }
@@ -188,7 +188,7 @@ type ControlElement = {
   type: HTMLInputElement["type"];
   label: string;
   id: string;
-  onChange: () => void;
+  onChange: (input: HTMLInputElement) => void;
   value?: string;
   min?: number;
   max?: number;
@@ -199,9 +199,25 @@ type ControlElement = {
 const controlFields: ControlElement[] = [
   {
     type: "checkbox",
-    label: "Debug",
+    label: "Debug logs",
     id: "debugSwitch",
-    onChange: () => console.log("Change!"),
+    onChange(checkbox) {
+      APP.debug = checkbox.checked;
+    },
+  },
+  {
+    type: "number",
+    label: "FPS",
+    id: "fps",
+    onChange(e) {
+      APP.fps = parseInt(e.value);
+      if (APP.debug) {
+        console.log(`FPS set to ${e.value}`);
+      }
+    },
+    value: "10",
+    min: 1,
+    max: 100,
   },
 ];
 
@@ -212,20 +228,23 @@ const renderConfigBox = () => {
   }
   for (let i = 0; i < controlFields.length; ++i) {
     const field = controlFields[i];
-    const prop = document.createElement("label");
-    prop.textContent = `${field.label} :`;
 
     const input = document.createElement("input");
     input.type = field.type;
     input.id = field.id;
-    input.addEventListener("change", field.onChange);
+    input.addEventListener("change", (e) => field.onChange(e.target as HTMLInputElement));
 
+    field.value ? (input.value = field.value) : {};
+
+    const prop = document.createElement("label");
+    prop.textContent = `${field.label}:`;
     prop.appendChild(input);
+
     configBox.appendChild(prop);
-    const elm = document.getElementById(field.id);
-    if (!elm) {
-      throw new Error("Couldn't append element");
-    }
+    // const elm = document.getElementById(field.id);
+    // if (!elm) {
+    //   throw new Error("Couldn't rootend element");
+    // }
   }
 };
 renderConfigBox();
