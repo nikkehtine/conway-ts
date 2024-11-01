@@ -1,0 +1,33 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@gitlab/svgs':
+        specifier: ^3.120.0
+        version: 3.120.0
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
+packages:
+
+  '@gitlab/svgs@3.120.0':
+    resolution: {integrity: sha512-lsMKCgg0o3FLbNzvNPahkDtKGOH4U99bHff2aGlyqYFIpPvGFes/DfGr0IXVtWdfavZyoT42zE0/rquG64bANw==}
+
+  typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+snapshots:
+
+  '@gitlab/svgs@3.120.0': {}
+
+  typescript@5.6.3: {}
