@@ -201,7 +201,7 @@ const controlFields: ControlElement[] = [
     type: "checkbox",
     label: "Debug logs",
     id: "debugSwitch",
-    onChange(checkbox) {
+    onChange: (checkbox) => {
       APP.debug = checkbox.checked;
     },
   },
@@ -209,7 +209,7 @@ const controlFields: ControlElement[] = [
     type: "number",
     label: "FPS",
     id: "fps",
-    onChange(e) {
+    onChange: (e) => {
       APP.fps = parseInt(e.value);
       if (APP.debug) {
         console.log(`FPS set to ${e.value}`);
@@ -217,6 +217,17 @@ const controlFields: ControlElement[] = [
     },
     value: "10",
     min: 1,
+    max: 100,
+  },
+  {
+    type: "number",
+    label: "Cell size",
+    id: "cell-size",
+    onChange: (e) => {
+      APP.cellSize = parseInt(e.value);
+    },
+    value: "12",
+    min: 8,
     max: 100,
   },
 ];
@@ -232,9 +243,12 @@ const renderConfigBox = () => {
     const input = document.createElement("input");
     input.type = field.type;
     input.id = field.id;
-    input.addEventListener("change", (e) => field.onChange(e.target as HTMLInputElement));
+    input.addEventListener("change", (e) => {
+      field.onChange(e.target as HTMLInputElement);
+      init();
+    });
 
-    field.value ? (input.value = field.value) : {};
+    field.value ? (input.value = field.value) : null;
 
     const prop = document.createElement("label");
     prop.textContent = `${field.label}:`;
